@@ -1,36 +1,38 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-
-## Getting Started
-
-First, run the development server:
+# Run postgres container
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+docker run -d \
+--name my-postgres \
+-e POSTGRES_USER=myuser \
+-e POSTGRES_PASSWORD=mypassword \
+-e POSTGRES_DB=social \
+-p 5432:5432 \
+-v /home/gourab/postgres_data:/var/lib/postgresql/data \
+postgres:13-trixie
+
+
+docker start my-postgres
+
+
+psql "postgresql://myuser:mypassword@localhost:5432/social"
+
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## endpoints
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Action                     | Method          | Path                 | Notes                                                          |
+| -------------------------- | --------------- | -------------------- | -------------------------------------------------------------- |
+| Create post                | **POST**        | `/api/posts`         | Auth required (Clerk)                                          |
+| Get all posts              | **GET**         | `/api/posts`         | For now public to logged-in users; later can restrict to admin |
+| Get current user’s posts   | **GET**         | `/api/user/posts`    | Uses Clerk user, no path params                                |
+| Delete a post              | **DELETE**      | `/api/posts/:postId` | Auth required; checks ownership                                |
+| Update a post _(optional)_ | **PATCH / PUT** | `/api/posts/:postId` | (If you add edit later)                                        |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Method     | Path          | What it does                                                                 |
+| ---------- | ------------- | ---------------------------------------------------------------------------- |
+| **POST**   | `/api/follow` | Authenticated user follows another user (requires `targetUserId` in body).   |
+| **DELETE** | `/api/follow` | Authenticated user unfollows another user (requires `targetUserId` in body). |
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Method  | Path        | What it does                                                                            |
+| ------- | ----------- | --------------------------------------------------------------------------------------- |
+| **GET** | `/api/feed` | Returns a personalized feed of posts for the logged-in user (based on who they follow). |
