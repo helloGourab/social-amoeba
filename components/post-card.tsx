@@ -13,6 +13,7 @@ import {
 import { useAuth } from "@clerk/nextjs";
 import { useState } from "react";
 import { FollowButton } from "./follow-button";
+import { UserPopover } from "./user-popover";
 
 interface Post {
   id: string;
@@ -68,11 +69,19 @@ export function PostCard({
   return (
     <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
       <CardHeader>
-        <CardTitle className="text-lg">Post ID: {post.id}</CardTitle>
-        <CardDescription>
-          By User: **{post.authorId}** | Posted:{" "}
-          {new Date(post.createdAt).toLocaleDateString()}
-        </CardDescription>
+        <div className="flex items-center gap-3">
+          <UserPopover
+            userId={post.authorId}
+            username={post.authorId} // replace with real username if you have it
+          />
+
+          <div>
+            <CardTitle className="text-lg">Post</CardTitle>
+            <CardDescription>
+              By <span className="font-medium">{post.authorId}</span>
+            </CardDescription>
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         <p className="text-gray-700 dark:text-gray-300">{post.content}</p>

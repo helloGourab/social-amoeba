@@ -1,5 +1,42 @@
 import { getNeo4jSession } from "../lib/neo4j";
 
+export async function getFollowerCount(userId: string) {
+  const session = getNeo4jSession();
+
+  try {
+    const result = await session.run(
+      `
+      MATCH (:User)-[r:FOLLOWS]->(u:User {id: $userId})
+      RETURN COUNT(r) AS count
+      `,
+      { userId }
+    );
+
+    return result.records[0].get("count").toNumber();
+  } finally {
+    await session.close();
+  }
+}
+
+export async function getFollowingCount(userId: string) {
+  const session = getNeo4jSession();
+
+  try {
+    const result = await session.run(
+      `
+      MATCH (u:User {id: $userId})-[r:FOLLOWS]->(:User)
+      RETURN COUNT(r) AS count
+      `,
+      { userId }
+    );
+
+    return result.records[0].get("count").toNumber();
+  } finally {
+    await session.close();
+  }
+}
+
+
 export async function isFollowing(followerId: string, followeeId: string) {
   const session = getNeo4jSession();
 

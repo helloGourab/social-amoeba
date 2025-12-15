@@ -36,3 +36,7 @@ psql "postgresql://myuser:mypassword@localhost:5432/social"
 | Method  | Path        | What it does                                                                            |
 | ------- | ----------- | --------------------------------------------------------------------------------------- |
 | **GET** | `/api/feed` | Returns a personalized feed of posts for the logged-in user (based on who they follow). |
+
+
+
+user_34MnDOpG7Ps1pG18qFRK3UIsKTa
