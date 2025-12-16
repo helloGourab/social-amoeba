@@ -14,6 +14,9 @@ import { useAuth } from "@clerk/nextjs";
 import { useState } from "react";
 import { FollowButton } from "./follow-button";
 import { UserPopover } from "./user-popover";
+import { LikeButton } from "./like-button";
+import { CommentButton } from "./comment-button";
+import { CommentModal } from "./comment-modal";
 
 interface Post {
   id: string;
@@ -38,6 +41,7 @@ export function PostCard({
   const isOwner = userId === post.authorId;
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [commentsOpen, setCommentsOpen] = useState(false);
 
   const handleDelete = async () => {
     if (!confirm("Are you sure you want to delete this post?")) return;
@@ -87,28 +91,33 @@ export function PostCard({
         <p className="text-gray-700 dark:text-gray-300">{post.content}</p>
       </CardContent>
       <CardFooter className="flex justify-between items-center">
-        <div className="flex items-center space-x-3">
-          {/* 1. Follow/Unfollow Button - Now passes the callback function */}
+        <div className="flex items-center gap-4">
+          <LikeButton postId={post.id} />
+
           <FollowButton
             targetUserId={post.authorId}
-            onActionSuccess={onFollowUpdate} // PASSING THE NEW PROP HERE
+            onActionSuccess={onFollowUpdate}
           />
 
-          {/* 2. Delete Button (only for owner) */}
           {isOwner && (
             <Button
               variant="destructive"
               onClick={handleDelete}
               disabled={isDeleting}
-              className="flex items-center space-x-2"
             >
-              <Trash2 className="w-4 h-4" />
-              {isDeleting ? "Deleting..." : "Delete"}
+              Delete
             </Button>
           )}
         </div>
 
-        {/* Error display for deletion */}
+        <CommentButton onClick={() => setCommentsOpen(true)} />
+
+        <CommentModal
+          postId={post.id}
+          open={commentsOpen}
+          onOpenChange={setCommentsOpen}
+        />
+
         {error && <p className="text-sm text-red-500">{error}</p>}
       </CardFooter>
     </Card>

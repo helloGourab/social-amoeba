@@ -40,3 +40,6 @@ psql "postgresql://myuser:mypassword@localhost:5432/social"
 
 
 user_34MnDOpG7Ps1pG18qFRK3UIsKTa
+
+- make cmt list scrollable 
+- apply recursive comment chain upto 3 lvls only
