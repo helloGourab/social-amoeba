@@ -9,19 +9,19 @@ import {
 import { useState } from "react";
 import { CommentList } from "./comment-list";
 import { CommentCreate } from "./comment-create";
+// Import the hook
 
 interface CommentModalProps {
-  postId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
 export function CommentModal({
-  postId,
   open,
   onOpenChange,
 }: CommentModalProps) {
   const [refreshKey, setRefreshKey] = useState(0);
+  
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -31,11 +31,10 @@ export function CommentModal({
         </DialogHeader>
 
         <CommentCreate
-          postId={postId}
           onSuccess={() => setRefreshKey((k) => k + 1)}
         />
 
-        <CommentList postId={postId} key={refreshKey} />
+        <CommentList key={refreshKey} />
       </DialogContent>
     </Dialog>
   );

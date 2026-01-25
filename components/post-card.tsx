@@ -17,10 +17,12 @@ import { UserPopover } from "./user-popover";
 import { LikeButton } from "./like-button";
 import { CommentButton } from "./comment-button";
 import { CommentModal } from "./comment-modal";
+import { PostScopeProvider } from "@/components/providers/post-scope-provider";
 
 interface Post {
   id: string;
   authorId: string;
+  authorName: string;
   content: string;
   createdAt: string;
 }
@@ -71,55 +73,56 @@ export function PostCard({
   };
 
   return (
-    <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
-      <CardHeader>
-        <div className="flex items-center gap-3">
-          <UserPopover
-            userId={post.authorId}
-            username={post.authorId} // replace with real username if you have it
-          />
+    <PostScopeProvider
+      value={{
+        postId: post.id,
+        authorId: post.authorId,
+        authorName: post.authorName,
+      }}
+    >
+      <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <UserPopover userId={post.authorId} username={post.authorName} />
 
-          <div>
-            <CardTitle className="text-lg">Post</CardTitle>
-            <CardDescription>
-              By <span className="font-medium">{post.authorId}</span>
-            </CardDescription>
+            <div>
+              <CardTitle className="text-lg">Post</CardTitle>
+              <CardDescription>
+                By <span className="font-medium">{post.authorName}</span>
+              </CardDescription>
+            </div>
           </div>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <p className="text-gray-700 dark:text-gray-300">{post.content}</p>
-      </CardContent>
-      <CardFooter className="flex justify-between items-center">
-        <div className="flex items-center gap-4">
-          <LikeButton postId={post.id} />
+        </CardHeader>
+        <CardContent>
+          <p className="text-gray-700 dark:text-gray-300">{post.content}</p>
+        </CardContent>
+        <CardFooter className="flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            <LikeButton postId={post.id} />
 
-          <FollowButton
-            targetUserId={post.authorId}
-            onActionSuccess={onFollowUpdate}
-          />
+            <FollowButton
+              targetUserId={post.authorId}
+              onActionSuccess={onFollowUpdate}
+            />
 
-          {isOwner && (
-            <Button
-              variant="destructive"
-              onClick={handleDelete}
-              disabled={isDeleting}
-            >
-              Delete
-            </Button>
-          )}
-        </div>
+            {isOwner && (
+              <Button
+                variant="destructive"
+                onClick={handleDelete}
+                disabled={isDeleting}
+              >
+                Delete
+              </Button>
+            )}
+          </div>
 
-        <CommentButton onClick={() => setCommentsOpen(true)} />
+          <CommentButton onClick={() => setCommentsOpen(true)} />
 
-        <CommentModal
-          postId={post.id}
-          open={commentsOpen}
-          onOpenChange={setCommentsOpen}
-        />
+          <CommentModal open={commentsOpen} onOpenChange={setCommentsOpen} />
 
-        {error && <p className="text-sm text-red-500">{error}</p>}
-      </CardFooter>
-    </Card>
+          {error && <p className="text-sm text-red-500">{error}</p>}
+        </CardFooter>
+      </Card>
+    </PostScopeProvider>
   );
 }

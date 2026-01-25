@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { CommentItem } from "./comment-item";
+import { usePostScope } from "@/components/providers/post-scope-provider";
 
 const ENGAGEMENT_BASE_URL =
   process.env.NEXT_PUBLIC_ENGAGEMENT_SERVICE_URL || "http://localhost:4001";
@@ -13,11 +14,8 @@ interface Comment {
   createdAt: string;
 }
 
-interface CommentListProps {
-  postId: string;
-}
-
-export function CommentList({ postId }: CommentListProps) {
+export function CommentList() {
+  const { postId } = usePostScope(); // Pull from context
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -80,7 +78,6 @@ export function CommentList({ postId }: CommentListProps) {
       {comments.map((comment) => (
         <CommentItem
           key={comment.id}
-          postId={postId}
           comment={comment}
           onDelete={handleDelete}
           onUpdate={handleUpdate}

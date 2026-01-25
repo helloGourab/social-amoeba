@@ -1,4 +1,4 @@
-// app/api/follow/count/[id]/follower/route.ts
+// app/api/follow/count/[id]/following/route.ts
 export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";

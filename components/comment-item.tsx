@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@clerk/nextjs";
 import { CommentCreate } from "./comment-create";
 import { ReplyList } from "./reply-list";
+import { usePostScope } from "@/components/providers/post-scope-provider";
 
 const ENGAGEMENT_BASE_URL =
   process.env.NEXT_PUBLIC_ENGAGEMENT_SERVICE_BASE_URL ||
@@ -19,21 +20,45 @@ interface Comment {
 }
 
 interface Props {
-  postId: string;
   comment: Comment;
   onDelete: (id: string) => void;
   onUpdate: (comment: Comment) => void;
 }
 
-export function CommentItem({ postId, comment, onDelete, onUpdate }: Props) {
+export function CommentItem({ comment, onDelete, onUpdate }: Props) {
   const { userId } = useAuth();
+  const { authorId } = usePostScope();
+
   const isOwner = userId === comment.userId;
+  const isOP = comment.userId === authorId;
 
   const [editing, setEditing] = useState(false);
   const [replying, setReplying] = useState(false);
   const [showReplies, setShowReplies] = useState(false);
   const [content, setContent] = useState(comment.content);
   const [loading, setLoading] = useState(false);
+
+  // State for username fetch
+  const [username, setUsername] = useState<string>("...");
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const res = await fetch(`/api/user/${comment.userId}`);
+        if (res.ok) {
+          const data = await res.json();
+          setUsername(data.username);
+        } else {
+          setUsername("Unknown User");
+        }
+      } catch (err) {
+        console.error("Error fetching user:", err);
+        setUsername("Error");
+      }
+    };
+
+    fetchUserData();
+  }, [comment.userId]);
 
   const save = async () => {
     setLoading(true);
@@ -74,11 +99,18 @@ export function CommentItem({ postId, comment, onDelete, onUpdate }: Props) {
 
   return (
     <div className="border rounded-md p-3 space-y-3">
-      <p className="text-sm font-medium">{comment.userId}</p>
+      <div className="flex items-center gap-2">
+        <p className="text-sm font-medium">@{username}</p>
+        {isOP && (
+          <span className="text-[10px] bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded font-bold uppercase">
+            OP
+          </span>
+        )}
+      </div>
 
       {/* CONTENT */}
       {!editing ? (
-        <p>{comment.content}</p>
+        <p className="text-sm">{comment.content}</p>
       ) : (
         <Textarea
           value={content}
@@ -150,9 +182,11 @@ export function CommentItem({ postId, comment, onDelete, onUpdate }: Props) {
       {replying && (
         <div className="pl-4 border-l space-y-2">
           <CommentCreate
-            postId={postId}
             parentId={comment.id}
-            onSuccess={() => setReplying(false)}
+            onSuccess={() => {
+              setReplying(false);
+              setShowReplies(true);
+            }}
           />
         </div>
       )}

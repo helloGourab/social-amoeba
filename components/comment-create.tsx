@@ -4,23 +4,22 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@clerk/nextjs";
+import { usePostScope } from "@/components/providers/post-scope-provider";
 
 const ENGAGEMENT_BASE_URL =
   process.env.NEXT_PUBLIC_ENGAGEMENT_SERVICE_BASE_URL ||
   "http://localhost:4001";
 
 interface CommentCreateProps {
-  postId: string;
+  // postId REMOVED
   parentId?: string | null;
   onSuccess: (comment: any) => void;
 }
 
-export function CommentCreate({
-  postId,
-  parentId,
-  onSuccess,
-}: CommentCreateProps) {
+export function CommentCreate({ parentId, onSuccess }: CommentCreateProps) {
   const { userId, isSignedIn } = useAuth();
+  const { postId } = usePostScope(); // Grabbed from Context
+
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -33,7 +32,7 @@ export function CommentCreate({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          postId,
+          postId, // Using postId from context
           userId,
           content,
           parentId: parentId ?? null,
@@ -57,12 +56,12 @@ export function CommentCreate({
   return (
     <div className="space-y-2">
       <Textarea
-        placeholder="Write a comment..."
+        placeholder={parentId ? "Write a reply..." : "Write a comment..."}
         value={content}
         onChange={(e) => setContent(e.target.value)}
       />
       <Button onClick={submit} disabled={loading || !content.trim()}>
-        {loading ? "Posting..." : "Post comment"}
+        {loading ? "Posting..." : parentId ? "Reply" : "Post comment"}
       </Button>
     </div>
   );

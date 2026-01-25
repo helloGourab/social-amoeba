@@ -8,8 +8,9 @@ datasource db {
 }
 
 model Post {
-  id        String   @id @default(cuid())
-  authorId  String   // Clerk User ID
-  content   String
-  createdAt DateTime @default(now())
+  id         String   @id @default(cuid())
+  authorId   String   // Clerk User ID
+  authorName String?  // Added this (Optional to handle existing records)
+  content    String
+  createdAt  DateTime @default(now())
 }

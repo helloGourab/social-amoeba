@@ -1,6 +1,10 @@
 import { prisma } from "../lib/prisma";
 
-export async function createPost(authorId: string, content: string) {
+export async function createPost(
+  authorId: string,
+  authorName: string | null,
+  content: string
+) {
   if (!content || content.trim().length === 0) {
     throw new Error("Post content cannot be empty");
   }
@@ -8,6 +12,7 @@ export async function createPost(authorId: string, content: string) {
   return prisma.post.create({
     data: {
       authorId,
+      authorName,
       content,
     },
   });

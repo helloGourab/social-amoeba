@@ -36,7 +36,6 @@ export async function getFollowingCount(userId: string) {
   }
 }
 
-
 export async function isFollowing(followerId: string, followeeId: string) {
   const session = getNeo4jSession();
 
@@ -102,6 +101,28 @@ export async function unfollowUser(followerId: string, followeeId: string) {
     );
 
     return { success: true, action: "unfollowed" };
+  } finally {
+    await session.close();
+  }
+}
+
+export async function getMutualCount(
+  currentUserId: string,
+  targetUserId: string
+) {
+  const session = getNeo4jSession();
+
+  try {
+    const result = await session.run(
+      `
+      MATCH (me:User {id: $currentUserId})-[:FOLLOWS]->(m:User)-[:FOLLOWS]->(me)
+      MATCH (target:User {id: $targetUserId})-[:FOLLOWS]->(m)-[:FOLLOWS]->(target)
+      RETURN COUNT(DISTINCT m) AS count
+      `,
+      { currentUserId, targetUserId }
+    );
+
+    return result.records[0].get("count").toNumber();
   } finally {
     await session.close();
   }

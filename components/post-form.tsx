@@ -70,7 +70,7 @@ export function PostForm({ onPostCreated }: PostFormProps) {
         <CardTitle>What's on your mind?</CardTitle>
       </CardHeader>
       <form onSubmit={handleSubmit}>
-        <CardContent>
+        <CardContent className="mb-8">
           <Textarea
             placeholder="Write your post content here..."
             value={content}
